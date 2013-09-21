@@ -20,7 +20,7 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <configuration>
-          <mainClass>org.jenkinsci.backend.pr.App</mainClass>
+          <mainClass>org.jenkinsci.backend.cifiller.App</mainClass>
         </configuration>
       </plugin>
     </plugins>
