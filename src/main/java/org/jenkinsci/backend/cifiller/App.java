@@ -4,6 +4,7 @@ import hudson.cli.CLI;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.NullInputStream;
 import org.apache.commons.io.output.NullOutputStream;
+import org.kohsuke.github.GHHook;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
@@ -14,7 +15,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.logging.Logger;
 
 /**
  * Puts greeting comments to pull requests.
@@ -31,12 +31,16 @@ public class App {
         cli = new CLI(new URL("https://jenkins.ci.cloudbees.com/"));
         cli.authenticate(CLI.loadKey(new File(System.getProperty("user.home")+"/.ssh/id_rsa")));
 
-        GitHub gh = GitHub.connect();
-        GHOrganization org = gh.getOrganization("jenkinsci");
-        for (GHRepository r : org.listRepositories()) {
-            // as a roll out, only do this for 10% of the repositories
-            if (r.getName().endsWith("-plugin"))
-                ensure(r);
+        try {
+            GitHub gh = GitHub.connect();
+            GHOrganization org = gh.getOrganization("jenkinsci");
+            for (GHRepository r : org.listRepositories()) {
+                // as a roll out, only do this for 10% of the repositories
+                if (r.getName().endsWith("-plugin"))
+                    ensure(r);
+            }
+        } finally {
+            cli.close();
         }
     }
 
@@ -46,6 +50,10 @@ public class App {
         if (cli.execute(Arrays.asList("get-job", jobName),
                 new NullInputStream(0),new NullOutputStream(),new NullOutputStream())==0) {
             System.out.printf("exists: %s\n",r.getName());
+
+            if (!hasHook(r))
+                createHook(r);
+
             return; // this job already exists
         }
 
@@ -59,6 +67,18 @@ public class App {
                 System.out,System.err)!=0) {
             throw new Error("Job creation failed");
         }
+        createHook(r);
+    }
+
+    private boolean hasHook(GHRepository r) throws IOException {
+        for (GHHook h : r.getHooks()) {
+            if (h.getName().equals("jenkins"))
+                return true;
+        }
+        return false;
+    }
+
+    private void createHook(GHRepository r) throws IOException {
         r.createHook("jenkins", Collections.singletonMap("jenkins_hook_url", "https://jenkins.ci.cloudbees.com/github-webhook/"),null,true);
     }
 }
