@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.logging.Logger;
 
 /**
@@ -58,5 +59,6 @@ public class App {
                 System.out,System.err)!=0) {
             throw new Error("Job creation failed");
         }
+        r.createHook("jenkins", Collections.singletonMap("jenkins_hook_url", "https://jenkins.ci.cloudbees.com/github-webhook/"),null,true);
     }
 }
