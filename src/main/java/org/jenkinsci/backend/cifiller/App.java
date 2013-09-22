@@ -27,24 +27,38 @@ public class App {
         new App().run();
     }
 
-    public void run() throws Exception {
+    public App() throws Exception {
         cli = new CLI(new URL("https://jenkins.ci.cloudbees.com/"));
         cli.authenticate(CLI.loadKey(new File(System.getProperty("user.home")+"/.ssh/id_rsa")));
+    }
 
+    public void close() throws IOException, InterruptedException {
+        cli.close();
+    }
+
+    public void run() throws Exception {
         try {
-            GitHub gh = GitHub.connect();
-            GHOrganization org = gh.getOrganization("jenkinsci");
-            for (GHRepository r : org.listRepositories()) {
-                // as a roll out, only do this for 10% of the repositories
-                if (r.getName().endsWith("-plugin"))
-                    ensure(r);
-            }
+            ensureAll();
         } finally {
-            cli.close();
+            close();
         }
     }
 
-    protected void ensure(GHRepository r) throws IOException {
+    public void ensureAll() throws IOException {
+        GitHub gh = GitHub.connect();
+        GHOrganization org = gh.getOrganization("jenkinsci");
+        for (GHRepository r : org.listRepositories()) {
+            ensure(r);
+        }
+    }
+
+    /**
+     * Ensures that the
+     */
+    public void ensure(GHRepository r) throws IOException {
+        if (!r.getName().endsWith("-plugin"))
+            return;
+
         String jobName = "plugins/" + r.getName();
 
         if (cli.execute(Arrays.asList("get-job", jobName),
