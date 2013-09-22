@@ -30,7 +30,6 @@ public class App {
 
     public App() throws Exception {
         cli = new CLI(new URL("https://jenkins.ci.cloudbees.com/"));
-        authenticate();
     }
 
     public void authenticate() throws IOException, GeneralSecurityException {
