@@ -13,6 +13,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -29,7 +30,11 @@ public class App {
 
     public App() throws Exception {
         cli = new CLI(new URL("https://jenkins.ci.cloudbees.com/"));
-        cli.authenticate(CLI.loadKey(new File(System.getProperty("user.home")+"/.ssh/id_rsa")));
+        authenticate();
+    }
+
+    public void authenticate() throws IOException, GeneralSecurityException {
+        cli.authenticate(CLI.loadKey(new File(System.getProperty("user.home") + "/.ssh/id_rsa")));
     }
 
     public void close() throws IOException, InterruptedException {
@@ -38,6 +43,7 @@ public class App {
 
     public void run() throws Exception {
         try {
+            authenticate();
             ensureAll();
         } finally {
             close();
