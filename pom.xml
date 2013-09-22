@@ -11,7 +11,7 @@
   <artifactId>backend-jenkins-ci-cloudbees-com-filler</artifactId>
   <version>1.0-SNAPSHOT</version>
 
-  <name>backend-pull-request-greeter</name>
+  <name>Create Plugin CI Jobs on https://jenkins.ci.cloudbees.com/</name>
 
   <build>
     <plugins>
