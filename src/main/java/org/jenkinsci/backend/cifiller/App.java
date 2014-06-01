@@ -11,6 +11,7 @@ import org.kohsuke.github.GitHub;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
@@ -61,7 +62,7 @@ public class App {
      * Ensures that the
      */
     public void ensure(GHRepository r) throws IOException {
-        if (!r.getName().endsWith("-plugin"))
+        if (!isPluginRepository(r))
             return;
 
         String jobName = "plugins/" + r.getName();
@@ -87,6 +88,29 @@ public class App {
             throw new Error("Job creation failed");
         }
         createHook(r);
+    }
+
+    private boolean isPluginRepository(GHRepository r) throws IOException {
+        // first, quick tests based on names
+        if (r.getName().endsWith("-plugin"))
+            return true;
+        if (r.getName().startsWith("backend-"))
+            return false;
+        if (r.getName().startsWith("lib-"))
+            return true;
+
+
+        // if name isn't conclusive, try to infer from pom.xml packaging
+        try {
+            String content = r.getFileContent("pom.xml").getContent();
+            if (content.contains("<packaging>hpi</packaging>"))
+                return true;
+        } catch (FileNotFoundException e) {
+            // if there's no pom.xml, this is not a plugin
+            return false;
+        }
+
+        return false;
     }
 
     private boolean hasHook(GHRepository r) throws IOException {
