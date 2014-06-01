@@ -97,7 +97,7 @@ public class App {
         if (r.getName().startsWith("backend-"))
             return false;
         if (r.getName().startsWith("lib-"))
-            return true;
+            return false;
 
 
         // if name isn't conclusive, try to infer from pom.xml packaging
