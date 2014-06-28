@@ -88,6 +88,12 @@ public class App {
             throw new Error("Job creation failed");
         }
         createHook(r);
+        
+        // do an initial build of the new job
+        if (cli.execute(Arrays.asList("build",jobName),
+                new NullInputStream(0),new NullOutputStream(),new NullOutputStream())==0) {
+            throw new Error("Initial build failed");
+        }
     }
 
     private boolean isPluginRepository(GHRepository r) throws IOException {
