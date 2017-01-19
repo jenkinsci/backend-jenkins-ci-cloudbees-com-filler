@@ -69,7 +69,7 @@ public class App {
 
         if (cli.execute(Arrays.asList("get-job", jobName),
                 new NullInputStream(0),new NullOutputStream(),new NullOutputStream())==0) {
-            System.out.printf("exists: %s\n",r.getName());
+            System.out.printf("INFO: exists: %s\n",r.getName());
 
             try {
                 if (!hasHook(r)) {
@@ -82,7 +82,7 @@ public class App {
         }
 
 
-        System.out.printf("create: %s\n",r.getName());
+        System.out.printf("INFO: creates: %s\n",r.getName());
 
         String xml = IOUtils.toString(App.class.getResourceAsStream("job.xml"),"UTF-8");
         xml = xml.replaceAll("@@NAME@@",r.getName());
