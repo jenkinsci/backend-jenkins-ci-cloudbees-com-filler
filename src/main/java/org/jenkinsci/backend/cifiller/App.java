@@ -34,7 +34,8 @@ public class App {
     }
 
     public void authenticate() throws IOException, GeneralSecurityException {
-        cli.authenticate(CLI.loadKey(new File(System.getProperty("user.home") + "/.ssh/id_rsa")));
+        cli.authenticate(CLI.loadKey(new File(System.getenv("SSH_KEY") != null ? System.getenv("SSH_KEY") :
+                System.getProperty("user.home") + "/.ssh/id_rsa")));
     }
 
     public void close() throws IOException, InterruptedException {
@@ -69,16 +70,20 @@ public class App {
 
         if (cli.execute(Arrays.asList("get-job", jobName),
                 new NullInputStream(0),new NullOutputStream(),new NullOutputStream())==0) {
-            System.out.printf("exists: %s\n",r.getName());
+            System.out.printf("INFO: exists: %s\n",r.getName());
 
-            if (!hasHook(r))
-                createHook(r);
-
+            try {
+                if (!hasHook(r)) {
+                    createHook(r);
+                }
+            } catch (FileNotFoundException fnfe) {
+                System.err.printf("WARN: Missing permission to access to hooks: %s\n", r.getName());
+            }
             return; // this job already exists
         }
 
 
-        System.out.printf("create: %s\n",r.getName());
+        System.out.printf("INFO: creates: %s\n",r.getName());
 
         String xml = IOUtils.toString(App.class.getResourceAsStream("job.xml"),"UTF-8");
         xml = xml.replaceAll("@@NAME@@",r.getName());
@@ -87,7 +92,11 @@ public class App {
                 System.out,System.err)!=0) {
             throw new Error("Job creation failed");
         }
-        createHook(r);
+        try {
+            createHook(r);
+        } catch (FileNotFoundException fnfe) {
+            System.err.printf("WARN: Missing permission to access to hooks: %s\n", r.getName());
+        }
     }
 
     private boolean isPluginRepository(GHRepository r) throws IOException {
