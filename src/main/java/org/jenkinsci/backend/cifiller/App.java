@@ -71,9 +71,13 @@ public class App {
                 new NullInputStream(0),new NullOutputStream(),new NullOutputStream())==0) {
             System.out.printf("exists: %s\n",r.getName());
 
-            if (!hasHook(r))
-                createHook(r);
-
+            try {
+                if (!hasHook(r)) {
+                    createHook(r);
+                }
+            } catch (FileNotFoundException fnfe) {
+                System.err.printf("WARN: Missing permission to access to hooks: %s\n", r.getName());
+            }
             return; // this job already exists
         }
 
