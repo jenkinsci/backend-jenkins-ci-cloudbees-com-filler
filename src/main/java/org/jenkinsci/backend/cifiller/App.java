@@ -34,7 +34,8 @@ public class App {
     }
 
     public void authenticate() throws IOException, GeneralSecurityException {
-        cli.authenticate(CLI.loadKey(new File(System.getProperty("user.home") + "/.ssh/id_rsa")));
+        cli.authenticate(CLI.loadKey(new File(System.getenv("SSH_KEY") != null ? System.getenv("SSH_KEY") :
+                System.getProperty("user.home") + "/.ssh/id_rsa")));
     }
 
     public void close() throws IOException, InterruptedException {
