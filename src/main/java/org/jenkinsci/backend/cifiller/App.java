@@ -92,7 +92,11 @@ public class App {
                 System.out,System.err)!=0) {
             throw new Error("Job creation failed");
         }
-        createHook(r);
+        try {
+            createHook(r);
+        } catch (FileNotFoundException fnfe) {
+            System.err.printf("WARN: Missing permission to access to hooks: %s\n", r.getName());
+        }
     }
 
     private boolean isPluginRepository(GHRepository r) throws IOException {
