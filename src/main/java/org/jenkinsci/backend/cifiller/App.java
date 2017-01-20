@@ -97,6 +97,10 @@ public class App {
         } catch (FileNotFoundException fnfe) {
             System.err.printf("WARN: Missing permission to access to hooks: %s\n", r.getName());
         }
+        if (cli.execute(Arrays.asList("build",jobName),
+                new NullInputStream(0),new NullOutputStream(),new NullOutputStream())==0) {
+            throw new Error("Initial build failed");
+        }
     }
 
     private boolean isPluginRepository(GHRepository r) throws IOException {
