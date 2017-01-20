@@ -90,7 +90,8 @@ public class App {
 
         if (cli.execute(Arrays.asList("create-job",jobName),new ByteArrayInputStream(xml.getBytes("UTF-8")),
                 System.out,System.err)!=0) {
-            throw new Error("Job creation failed");
+            System.err.println("Error: Job creation for "+jobName+" failed");
+            return;
         }
         try {
             createHook(r);
@@ -99,7 +100,7 @@ public class App {
         }
         if (cli.execute(Arrays.asList("build",jobName),
                 new NullInputStream(0),new NullOutputStream(),new NullOutputStream())==0) {
-            throw new Error("Initial build failed");
+            System.err.println("ERROR: Executing initial build for "+jobName+" failed");
         }
     }
 
